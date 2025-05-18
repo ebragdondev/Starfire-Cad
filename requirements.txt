@@ -1,0 +1,8 @@
+flask
+flask_sqlalchemy
+flask_login
+flask_migrate
+flask_session
+psycopg2-binary
+stripe
+redis

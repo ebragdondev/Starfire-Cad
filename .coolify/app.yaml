@@ -1,0 +1,22 @@
+type: application
+name: StarfireCAD
+project: StarfireCAD
+git:
+  repository: https://github.com/YOUR_USERNAME/starfirecad
+  branch: main
+  autoDeploy: true
+services:
+  - name: web
+    type: docker-compose
+    buildFrom:
+      dockerfile: Dockerfile
+    dockerComposeFile: docker-compose.yml
+    env:
+      - FLASK_ENV=production
+      - SECRET_KEY=changeme
+      - STRIPE_SECRET_KEY=sk_test_...
+      - STRIPE_PUBLIC_KEY=pk_test_...
+      - STRIPE_WEBHOOK_SECRET=whsec_...
+      - DISCORD_BOT_TOKEN=your_token
+      - REDIS_URL=redis://cache:6379/0
+      - DATABASE_URL=postgresql://postgres:postgres@db:5432/starfirecad
