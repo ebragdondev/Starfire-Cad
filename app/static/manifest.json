@@ -1,0 +1,13 @@
+{
+  "name": "StarfireCAD",
+  "short_name": "StarfireCAD",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#1D4ED8",
+  "theme_color": "#1D4ED8",
+  "icons": [{
+    "src": "/static/icon.png",
+    "sizes": "192x192",
+    "type": "image/png"
+  }]
+}

@@ -1,39 +1,34 @@
-version: "3.8"
-services:
-  db:
-    image: mysql:8
-    restart: always
-    environment:
-      MYSQL_DATABASE: cad_db
-      MYSQL_USER: root
-      MYSQL_PASSWORD: password
-      MYSQL_ROOT_PASSWORD: password
-    ports:
-      - "3306:3306"
-    volumes:
-      - db_data:/var/lib/mysql
+version: '3.8'
 
-  backend:
-    build: ./backend
-    volumes:
-      - ./backend/app:/app/app
+services:
+  web:
+    build: .
+    ports:
+      - "5000:5000"
     environment:
-      MYSQL_USER: root
-      MYSQL_PASSWORD: password
-      MYSQL_DB: cad_db
-      MYSQL_HOST: db
+      - FLASK_ENV=production
+      - DATABASE_URL=postgresql://postgres:postgres@db:5432/starfirecad
+      - REDIS_URL=redis://cache:6379/0
+      - SECRET_KEY=changeme
+      - STRIPE_SECRET_KEY=sk_test_...
+      - STRIPE_PUBLIC_KEY=pk_test_...
+      - STRIPE_WEBHOOK_SECRET=whsec_...
+      - DISCORD_BOT_TOKEN=your_discord_token
     depends_on:
       - db
-    ports:
-      - "8000:8000"
+      - cache
 
-  frontend:
-    build: ./frontend
-    ports:
-      - "3000:3000"
-    depends_on:
-      - backend
+  db:
+    image: postgres:13
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: starfirecad
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+  cache:
+    image: redis:6
 
 volumes:
-  db_data:
- 
+  pgdata:
