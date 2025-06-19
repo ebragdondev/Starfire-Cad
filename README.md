@@ -94,7 +94,7 @@ Whether you're dispatching LEOs in a 5-person RP server or managing thousands of
 
 ## 🚀 Roadmap
 
-Check out the full development roadmap here: [ROADMAP.md](./ROADMAP.md)
+Check out the full development roadmap here: [roadmap.md](./roadmap.md)
 
 ---
 
