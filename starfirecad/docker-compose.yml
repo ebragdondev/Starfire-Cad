@@ -1,0 +1,52 @@
+services:
+  postgres:
+    image: postgres:16
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-starfire}
+      POSTGRES_USER: ${POSTGRES_USER:-starfire}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-starfire}
+    volumes:
+      - ./docker-data/postgres:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+
+  redis:
+    image: redis:7
+    command: ["redis-server", "--appendonly", "yes"]
+    ports:
+      - "6379:6379"
+    volumes:
+      - ./docker-data/redis:/data
+
+  api:
+    build:
+      context: ./apps/api
+    env_file:
+      - ./.env
+    environment:
+      PORT: 4000
+      APP_URL: ${APP_URL:-http://localhost:3000}
+      DATABASE_URL: postgresql://${POSTGRES_USER:-starfire}:${POSTGRES_PASSWORD:-starfire}@postgres:5432/${POSTGRES_DB:-starfire}
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+    depends_on:
+      - postgres
+      - redis
+    ports:
+      - "4000:4000"
+
+  web:
+    build:
+      context: ./apps/web-svelte
+    env_file:
+      - ./.env
+    environment:
+      PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-http://localhost:4000}
+    depends_on:
+      - api
+    ports:
+      - "3000:3000"
+
+volumes:
+  postgres:
+  redis:

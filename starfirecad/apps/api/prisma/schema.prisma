@@ -1,0 +1,151 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum GlobalRole {
+  USER
+  GLOBAL_ADMIN
+}
+
+enum CommunityRole {
+  MEMBER
+  COMMUNITY_MANAGER
+  COMMUNITY_ADMIN
+  COMMUNITY_OWNER
+}
+
+enum UnitStatus {
+  OFF_DUTY
+  AVAILABLE
+  BUSY
+  EN_ROUTE
+  ON_SCENE
+}
+
+enum CallStatus {
+  OPEN
+  DISPATCHED
+  ON_SCENE
+  CLOSED
+}
+
+model User {
+  id           String      @id @default(uuid())
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
+  email        String      @unique
+  username     String      @unique
+  passwordHash String
+  globalRole   GlobalRole  @default(USER)
+
+  createdCommunities Community[] @relation("CreatedCommunities")
+  memberships Membership[]
+  preferences UserPreference?
+  auditLogs   AuditLog[]
+  units       Unit[]
+}
+
+model Community {
+  id        String      @id @default(uuid())
+  createdAt DateTime    @default(now())
+  updatedAt DateTime    @updatedAt
+  name      String      @unique
+  slug      String      @unique
+  settings  Json
+
+  createdBy     User   @relation("CreatedCommunities", fields: [createdById], references: [id])
+  createdById   String
+  members       Membership[]
+  subscription  CommunitySubscription?
+  units         Unit[]
+  calls         Call[]
+}
+
+model Membership {
+  id          String        @id @default(uuid())
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+  role        CommunityRole @default(MEMBER)
+
+  user        User          @relation(fields: [userId], references: [id])
+  userId      String
+  community   Community     @relation(fields: [communityId], references: [id])
+  communityId String
+
+  @@unique([userId, communityId], name: "userId_communityId")
+}
+
+model UserPreference {
+  id        String   @id @default(uuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  uiLayout  Json
+
+  user   User   @relation(fields: [userId], references: [id])
+  userId String @unique
+}
+
+model CommunitySubscription {
+  id                 String   @id @default(uuid())
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+  plan               String
+  status             String
+  stripeCustomerId   String?
+  stripeSubscriptionId String?
+
+  community   Community @relation(fields: [communityId], references: [id])
+  communityId String   @unique
+}
+
+model Unit {
+  id           String     @id @default(uuid())
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+  identifier   String
+  status       UnitStatus @default(OFF_DUTY)
+
+  community   Community @relation(fields: [communityId], references: [id])
+  communityId String
+  user        User?     @relation(fields: [userId], references: [id])
+  userId      String?
+}
+
+model Call {
+  id           String     @id @default(uuid())
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+  title        String
+  description  String
+  location     String
+  status       CallStatus @default(OPEN)
+
+  community   Community @relation(fields: [communityId], references: [id])
+  communityId String
+  events      CallEvent[]
+}
+
+model CallEvent {
+  id        String   @id @default(uuid())
+  createdAt DateTime @default(now())
+  type      String
+  payload   Json
+
+  call   Call   @relation(fields: [callId], references: [id])
+  callId String
+}
+
+model AuditLog {
+  id        String   @id @default(uuid())
+  createdAt DateTime @default(now())
+  actorId   String
+  action    String
+  details   Json
+
+  actor User @relation(fields: [actorId], references: [id])
+}

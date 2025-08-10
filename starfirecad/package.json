@@ -1,0 +1,14 @@
+{
+  "name": "starfirecad",
+  "private": true,
+  "version": "0.1.0",
+  "packageManager": "pnpm@10.11.1",
+  "scripts": {
+    "dev": "pnpm -r --filter ./apps/* run dev",
+    "build": "pnpm -r --filter ./apps/* run build",
+    "start": "pnpm -r --filter ./apps/* run start",
+    "lint": "pnpm -r --filter ./apps/* run lint",
+    "format": "pnpm -r --filter ./apps/* run format",
+    "typecheck": "pnpm -r --filter ./apps/* run typecheck"
+  }
+}
