@@ -10,6 +10,8 @@ import { authRouter } from './tabs/auth/router';
 import { adminRouter } from './tabs/admin/router';
 import { communityRouter } from './tabs/community/router';
 import { stripeRouter } from './tabs/stripe/router';
+import { meRouter } from './tabs/me/router';
+import { cadRouter } from './tabs/cad/router';
 import compression from 'compression';
 import pino from 'pino';
 import client from 'prom-client';
@@ -48,6 +50,8 @@ export function createServer() {
   app.use('/auth', authRouter);
   app.use('/admin', adminRouter);
   app.use('/communities', communityRouter);
+  app.use('/me', meRouter);
+  app.use('/cad', cadRouter);
 
   const httpServer = http.createServer(app);
   const io = new SocketIOServer(httpServer, {
@@ -72,6 +76,9 @@ export function createServer() {
 
   io.on('connection', (socket) => {
     socket.emit('welcome', { message: 'Connected to StarfireCAD' });
+    socket.on('joinCommunity', (communityId: string) => {
+      socket.join(`community:${communityId}`);
+    });
   });
 
   return { app, httpServer };
