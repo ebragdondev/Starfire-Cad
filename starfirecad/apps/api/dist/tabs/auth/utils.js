@@ -1,18 +1,18 @@
 import jwt from 'jsonwebtoken';
-import { PrismaClient } from '@prisma/client';
 import { env } from '../../env';
-const prisma = new PrismaClient();
+import { prisma } from '../../lib/prisma';
 const AUTH_COOKIE = 'starfirecad_token';
 export function setAuthCookie(res, token) {
     res.cookie(AUTH_COOKIE, token, {
         httpOnly: true,
         sameSite: 'lax',
         secure: env.NODE_ENV === 'production',
-        maxAge: 7 * 24 * 60 * 60 * 1000
+        maxAge: 7 * 24 * 60 * 60 * 1000,
+        path: '/'
     });
 }
 export function clearAuthCookie(res) {
-    res.clearCookie(AUTH_COOKIE);
+    res.clearCookie(AUTH_COOKIE, { path: '/' });
 }
 export async function getUserFromRequest(req) {
     const token = req.cookies?.[AUTH_COOKIE] || (req.headers.authorization?.startsWith('Bearer ') ? req.headers.authorization.slice(7) : undefined);

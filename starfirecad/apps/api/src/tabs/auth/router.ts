@@ -2,12 +2,15 @@ import { Router } from 'express';
 import { z } from 'zod';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
-import { PrismaClient } from '@prisma/client';
 import { env } from '../../env';
 import { requireAuth, setAuthCookie, clearAuthCookie, getUserFromRequest } from './utils';
+import rateLimit from 'express-rate-limit';
+import { prisma } from '../../lib/prisma';
 
-const prisma = new PrismaClient();
 export const authRouter = Router();
+
+const authLimiter = rateLimit({ windowMs: 10 * 60 * 1000, max: 50 });
+const loginLimiter = rateLimit({ windowMs: 15 * 60 * 1000, max: 20 });
 
 const registerSchema = z.object({
   email: z.string().email(),
@@ -15,7 +18,7 @@ const registerSchema = z.object({
   password: z.string().min(8).max(128)
 });
 
-authRouter.post('/register', async (req, res) => {
+authRouter.post('/register', authLimiter, async (req, res) => {
   const parse = registerSchema.safeParse(req.body);
   if (!parse.success) return res.status(400).json({ error: 'Invalid payload' });
   const { email, username, password } = parse.data;
@@ -37,7 +40,7 @@ const loginSchema = z.object({
   password: z.string().min(8)
 });
 
-authRouter.post('/login', async (req, res) => {
+authRouter.post('/login', loginLimiter, async (req, res) => {
   const parse = loginSchema.safeParse(req.body);
   if (!parse.success) return res.status(400).json({ error: 'Invalid payload' });
   const { emailOrUsername, password } = parse.data;

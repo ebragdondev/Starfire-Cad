@@ -1,0 +1,60 @@
+services:
+  caddy:
+    image: caddy:2
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile
+      - caddy_data:/data
+      - caddy_config:/config
+    depends_on:
+      - web
+      - api
+
+  postgres:
+    image: postgres:16
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-starfire}
+      POSTGRES_USER: ${POSTGRES_USER:-starfire}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-starfire}
+    volumes:
+      - ../docker-data/postgres:/var/lib/postgresql/data
+
+  redis:
+    image: redis:7
+    command: ["redis-server", "--appendonly", "yes"]
+    volumes:
+      - ../docker-data/redis:/data
+
+  api:
+    build:
+      context: ../apps/api
+    env_file:
+      - ../.env
+    environment:
+      NODE_ENV: production
+      PORT: 4000
+      APP_URL: https://${DOMAIN}
+      DATABASE_URL: postgresql://${POSTGRES_USER:-starfire}:${POSTGRES_PASSWORD:-starfire}@postgres:5432/${POSTGRES_DB:-starfire}
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+    depends_on:
+      - postgres
+      - redis
+
+  web:
+    build:
+      context: ../apps/web
+      dockerfile: Dockerfile
+    env_file:
+      - ../.env
+    environment:
+      NODE_ENV: production
+      NEXT_PUBLIC_API_URL: https://${DOMAIN}/api
+    depends_on:
+      - api
+
+volumes:
+  caddy_data:
+  caddy_config:

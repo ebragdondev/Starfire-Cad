@@ -1,7 +1,6 @@
 import { Router } from 'express';
-import { PrismaClient } from '@prisma/client';
+import { prisma } from '../../lib/prisma';
 import { requireAuth, requireGlobalAdmin } from '../auth/utils';
-const prisma = new PrismaClient();
 export const adminRouter = Router();
 adminRouter.use(requireAuth, requireGlobalAdmin);
 adminRouter.get('/users', async (_req, res) => {
