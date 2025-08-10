@@ -1,0 +1,33 @@
+{
+  "name": "@starfirecad/web",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "dev": "next dev -p 3000",
+    "build": "next build",
+    "start": "next start -p 3000",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "lint": "next lint || true"
+  },
+  "dependencies": {
+    "next": "^14.2.5",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "zod": "^3.23.8",
+    "react-grid-layout": "^1.5.0",
+    "react-resizable": "^3.0.5",
+    "tailwindcss": "^3.4.10",
+    "postcss": "^8.4.41",
+    "autoprefixer": "^10.4.19"
+  },
+  "devDependencies": {
+    "@types/react": "^18.3.3",
+    "@types/node": "^22.5.4",
+    "@types/react-resizable": "^3.0.8",
+    "typescript": "^5.5.4"
+  }
+}
